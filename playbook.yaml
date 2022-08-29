@@ -1,0 +1,131 @@
+- hosts: localhost
+  become: yes
+  vars:
+    - workstation: "{{ lookup('env', 'WORKSTATION') }}"
+    - desktopenv: "{{ lookup('env', 'DESKTOP_ENVIRONMENT') | default('xorg', True) }}"
+    - asdf_user: sgehring
+    - erlang_version: 24.2
+    - elixir_version: 1.13.0
+    - nodejs_version: 16.13.1
+    - ruby_version: 3.0.3
+    - flutter_version: 2.5.3
+
+  roles:
+    # Make sure workstation parameter is passed
+    - role: "_validate" 
+      tags: [ "always" ]
+
+    # Base machine setup
+    - role: shell
+      tags: [ "base", "shell" ]
+
+    - role: utils
+      tags: [ "base", "utils" ]
+
+    - role: user
+      tags: [ "base", "user" ]
+
+    - role: network
+      tags: [ "base", "network" ]
+
+    - role: desktop-wayland
+      tags: [ "base", "desktop", "wayland" ]
+
+    - role: desktop-xorg
+      tags: [ "base", "desktop", "xorg" ]
+
+    - role: audio
+      tags: [ "base", "audio" ]
+
+    - role: bluetooth
+      tags: [ "base", "bluetooth" ]
+
+    - role: screenshot
+      tags: [ "base", "screenshot" ]
+
+    - role: yay
+      tags: [ "base", "yay" ]
+
+    # Generic programs and tools
+    - role: synology
+      tags: [ "programs", "sync", "synology" ]
+
+    - role: chromium
+      tags: [ "programs", "browsers", "chromium" ]
+
+    - role: firefox
+      tags: [ "programs", "browsers", "firefox" ]
+
+    - role: slack
+      tags: [ "programs", "messengers", "slack" ]
+
+    - role: telegram
+      tags: [ "programs", "messengers", "telegram" ]
+
+    - role: msteams
+      tags: [ "programs", "messengers", "msteams", "teams" ]
+
+    - role: keepass
+      tags: [ "programs", "keepass" ]
+
+    - role: virtualization
+      tags: [ "programs", "virtualization" ]
+
+    # Development environments and tools
+    - role: cimon-io.asdf
+      asdf_plugins:
+      - name: "erlang"
+        versions: ["{{erlang_version}}"]
+        global: "{{erlang_version}}"
+      - name: "elixir"
+        versions: ["{{elixir_version}}"]
+        global: "{{elixir_version}}"
+      - name: "nodejs"
+        versions: ["{{nodejs_version}}"]
+        global: "{{nodejs_version}}"
+      - name: "ruby"
+        versions: ["{{ruby_version}}"]
+        global: "{{ruby_version}}"
+      - name: "flutter"
+        versions: ["{{flutter_version}}"]
+        global: "{{flutter_version}}"
+      tags: [ "development", "languages", "asdf"]
+
+    - role: python
+      tags: [ "development", "languages", "python" ]
+
+    - role: vscode
+      tags: [ "development", "editors", "vscode" ]
+
+    - role: android
+      tags: [ "development", "editors", "android" ]
+
+    - role: git
+      tags: [ "development", "tools", "git" ]
+
+    - role: docker
+      tags: [ "development", "tools", "docker" ]
+
+    - role: kubernetes
+      tags: [ "development", "tools", "kubernetes", "k8s" ]
+
+    - role: awscli
+      tags: [ "development", "tools", "awscli" ]
+
+    - role: filezilla
+      tags: [ "development", "tools", "filezilla" ]
+
+    - role: gparted
+      tags: [ "development", "tools", "gparted" ]
+
+    - role: imagemagick
+      tags: [ "development", "tools", "imagemagick" ]
+
+    - role: postman
+      tags: [ "development", "tools", "postman" ]
+
+    - role: wireshark
+      tags: [ "development", "tools", "wireshark" ]
+
+    - role: workscripts
+      tags: [ "development", "scripts", "workscripts" ]

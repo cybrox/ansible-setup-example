@@ -1,0 +1,26 @@
+- name: Install bluetooth related packages
+  pacman:
+    name:
+      - bluez
+      - bluez-utils
+    state: present
+
+- name: Enable and start bluetooth service
+  systemd:
+    name: bluetooth
+    state: started
+    enabled: yes
+
+- name: Automatically power on bluetooth on boot
+  lineinfile:
+    path: /etc/bluetooth/main.conf
+    regexp: ^#? ?AutoEnable=
+    line: "AutoEnable=true"
+
+# Afterwards, pair a bluetooth device like:
+#
+# bluetoothctl
+#> power on
+#> devices (or "scan on" if not found)
+#> pair CC:98:8B:E0:D0:14
+#> connect CC:98:8B:E0:D0:14

@@ -1,0 +1,6 @@
+- name: Install asdf version manager
+  become_user: sgehring
+  become: yes
+  kewlfft.aur.aur:
+    name: asdf-vm
+    state: present

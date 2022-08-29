@@ -1,0 +1,32 @@
+- name: Install chromium browser
+  pacman:
+    name: chromium
+    state: present
+
+- name: Set chromium flags to use ozone platform
+  lineinfile:
+    path: /home/sgehring/.config/chromium-flags.conf
+    line: "--enable-features=UseOzonePlatform"
+    create: yes
+  when: desktopenv == "wayland"
+
+- name: Set chromium flags to use wayland
+  lineinfile:
+    path: /home/sgehring/.config/chromium-flags.conf
+    line: "--ozone-platform=wayland"
+    create: yes
+  when: desktopenv == "wayland"
+
+- name: Unset chromium flags to use ozone platform
+  lineinfile:
+    path: /home/sgehring/.config/chromium-flags.conf
+    line: "--enable-features=UseOzonePlatform"
+    state: absent
+  when: desktopenv != "wayland"
+
+- name: Unset chromium flags to use wayland
+  lineinfile:
+    path: /home/sgehring/.config/chromium-flags.conf
+    line: "--ozone-platform=wayland"
+    state: absent
+  when: desktopenv != "wayland"

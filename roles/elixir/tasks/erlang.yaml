@@ -1,0 +1,14 @@
+- name: List asdf plugins
+  shell: /opt/asdf-vm/bin/asdf plugin list | grep erlang
+  ignore_errors: yes
+  register: asdf_erlangplugin
+
+- name: Install asdf erlang plugin if necessary
+  shell: /opt/asdf-vm/bin/asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git
+  when: asdf_erlangplugin.rc != 0
+
+- name: Install erlang
+  shell: "/opt/asdf-vm/bin/asdf install erlang {{erlang_version}}"
+
+- name: Enable erlang
+  shell: "/opt/asdf-vm/bin/asdf global erlang {{erlang_version}}"

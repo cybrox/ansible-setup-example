@@ -1,0 +1,10 @@
+- name: Install Android Tools
+  pacman:
+    name: android-tools
+    state: present
+
+- name: Install Android-Studio
+  become_user: sgehring
+  kewlfft.aur.aur:
+    name: android-studio
+    state: present

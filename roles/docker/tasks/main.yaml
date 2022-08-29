@@ -1,0 +1,19 @@
+- name: Install docker
+  pacman:
+    name:
+      - docker
+      - docker-compose
+    state: present
+
+- name: Enable and start docker service
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Add sgehring to docker group
+  user:
+    name: sgehring
+    groups:
+      - docker
+    append: yes

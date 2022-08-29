@@ -1,0 +1,13 @@
+- name: Check if workstation is configured
+  fail:
+    msg: WORKSTATION must be <work|home>
+  when:
+    - workstation != 'work'
+    - workstation != 'home'
+
+- name: Check if desktop environment is configured
+  fail:
+    msg: DESKTOP_ENVIRONMENT must be <xorg|wayland>
+  when:
+    - desktopenv != 'xorg'
+    - desktopenv != 'wayland'

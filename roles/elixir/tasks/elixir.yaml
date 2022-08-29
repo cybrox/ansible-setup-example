@@ -1,0 +1,22 @@
+- name: List asdf plugins
+  shell: /opt/asdf-vm/bin/asdf plugin list | grep elixir
+  ignore_errors: yes
+  register: asdf_elixirplugin
+
+- name: Install asdf elixir plugin if necessary
+  shell: /opt/asdf-vm/bin/asdf plugin-add elixir https://github.com/asdf-vm/asdf-elixir.git
+  when: asdf_elixirplugin.rc != 0
+
+- name: Install elixir and additional tools
+  shell: |
+    export PATH="/opt/asdf-vm/bin/:$PATH"
+    export PATH="/home/sgehring/.asdf/shims/:$PATH"
+    asdf install elixir {{elixir_version}}
+    asdf global elixir {{elixir_version}}
+    mix local.hex --force
+    mix archive.install hex phx_new {{phx_new_version}} --force
+
+- name: Install inotify for phoenix auto reload
+  pacman:
+    name: inotify-tools
+    state: present

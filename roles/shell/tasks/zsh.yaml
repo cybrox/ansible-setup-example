@@ -1,0 +1,119 @@
+- name: Install zsh and autocomplete
+  pacman:
+    name:
+      - zsh
+      - zsh-completions
+    state: present
+
+- name: Get zsh version
+  shell: zsh --version
+  ignore_errors: yes
+  register: zsh_version
+
+- name: Ensure zsh is installed
+  fail:
+    msg: zsh has not been installed properly
+  when: zsh_version.rc != 0
+
+- name: Check if oh-my-zsh is installed
+  stat:
+    path: /home/sgehring/.oh-my-zsh
+  register: ohmyzsh_dir
+
+- name: Install oh-my-zsh if not installed
+  block:
+    - name: Install oh-my-zsh
+      become: yes
+      become_user: sgehring
+      shell: sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+      register: ohmyzsh_install
+
+    - name: Ensure oh-my-zsh was installed
+      fail:
+        msg: oh-my-zsh has not been installed properly
+      when: ohmyzsh_install.rc != 0
+
+    - name: Ensure oh-my-zsh directory exists
+      file:
+        path: /home/sgehring/.oh-my-zsh
+        state: directory
+        owner: sgehring
+        group: users
+        mode: '0755'
+  when: ohmyzsh_dir.stat.exists == false
+
+- name: Check if powerlevel10k is installed
+  stat:
+    path: /home/sgehring/.oh-my-zsh/custom/themes/powerlevel10k
+  register: powerlevel10k_dir
+
+- name: Install powerlevel10k if not installed
+  block:
+    - name: Install powerlevel10k
+      shell: git clone --depth=1 https://github.com/romkatv/powerlevel10k.git /home/sgehring/.oh-my-zsh/custom/themes/powerlevel10k
+  when: powerlevel10k_dir.stat.exists == false
+
+- name: Deploy custom .zshrc
+  copy:
+    src: zsh/.zshrc
+    dest: /home/sgehring/.zshrc
+    owner: sgehring
+    group: users
+    mode: '0644'
+
+- name: Adjust .zshrc based on desktop env
+  lineinfile:
+    path: /home/sgehring/.zshrc
+    regexp: export MOZ_ENABLE_WAYLAND=
+    line: export MOZ_ENABLE_WAYLAND="1"
+  when: desktopenv == "wayland"
+
+- name: Adjust .zshrc based on desktop env
+  lineinfile:
+    path: /home/sgehring/.zshrc
+    regexp: export MOZ_ENABLE_WAYLAND=
+    line: export MOZ_ENABLE_WAYLAND="0"
+  when: desktopenv != "wayland"
+
+- name: Deploy custom .zprofile
+  copy:
+    src: zsh/.zprofile
+    dest: /home/sgehring/.zprofile
+    owner: sgehring
+    group: users
+    mode: '0644'
+
+- name: Adjust .zprofile based on desktop env
+  lineinfile:
+    path: /home/sgehring/.zprofile
+    regexp: export DESKTOP_ENVIRONMENT=
+    line: "export DESKTOP_ENVIRONMENT=\"{{dekstopenv}}\""
+  when: desktopenv == "wayland"
+
+- name: Deploy custom p10k config
+  copy:
+    src: zsh/.p10k.zsh
+    dest: /home/sgehring/.p10k.zsh
+    owner: sgehring
+    group: users
+    mode: '0644'
+
+- name: Install nerd fonts
+  become_user: sgehring
+  become: yes
+  kewlfft.aur.aur:
+    name: nerd-fonts-complete
+    state: present
+
+# The fonts deployed here are configured to be used in UXterm
+# using the .Xresources file that is deployed in the desktop setup.
+- name: Deploy custom fonts from p10k
+  copy:
+    src: zsh/p10k
+    dest: /usr/share/fonts/p10k
+    owner: root
+    group: root
+    mode: '0777'
+
+- name: Refresh font cache
+  shell: fc-cache
